@@ -77,6 +77,22 @@ describe("gateway server agent", () => {
     {
       registerAgentRunContext("run-tool-off", { sessionKey: "agent:main:main" });
 
+      const compactionEvtP = onceMessage(
+        ws,
+        (o) =>
+          o.type === "event" &&
+          o.event === "agent" &&
+          o.payload?.runId === "run-tool-off" &&
+          o.payload?.stream === "compaction",
+        1000,
+      );
+
+      emitAgentEvent({
+        runId: "run-tool-off",
+        stream: "compaction",
+        data: { phase: "start" },
+      });
+
       emitAgentEvent({
         runId: "run-tool-off",
         stream: "tool",
@@ -98,6 +114,8 @@ describe("gateway server agent", () => {
           ? (evt.payload as Record<string, unknown>)
           : {};
       expect(payload.stream).toBe("assistant");
+
+      await expect(compactionEvtP).rejects.toThrow("timeout");
     }
 
     {

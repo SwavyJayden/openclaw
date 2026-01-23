@@ -142,6 +142,7 @@ export type CompactionStatus = {
   active: boolean;
   startedAt: number | null;
   completedAt: number | null;
+  retryingAt: number | null;
 };
 
 type CompactionHost = ToolStreamHost & {
@@ -154,6 +155,7 @@ const COMPACTION_TOAST_DURATION_MS = 5000;
 export function handleCompactionEvent(host: CompactionHost, payload: AgentEventPayload) {
   const data = payload.data ?? {};
   const phase = typeof data.phase === "string" ? data.phase : "";
+  const willRetry = Boolean(data.willRetry);
   
   // Clear any existing timer
   if (host.compactionClearTimer != null) {
@@ -166,12 +168,14 @@ export function handleCompactionEvent(host: CompactionHost, payload: AgentEventP
       active: true,
       startedAt: Date.now(),
       completedAt: null,
+      retryingAt: null,
     };
   } else if (phase === "end") {
     host.compactionStatus = {
-      active: false,
+      active: willRetry,
       startedAt: host.compactionStatus?.startedAt ?? null,
-      completedAt: Date.now(),
+      completedAt: willRetry ? null : Date.now(),
+      retryingAt: willRetry ? Date.now() : null,
     };
     // Auto-clear the toast after duration
     host.compactionClearTimer = window.setTimeout(() => {
@@ -183,13 +187,19 @@ export function handleCompactionEvent(host: CompactionHost, payload: AgentEventP
 
 export function handleAgentEvent(host: ToolStreamHost, payload?: AgentEventPayload) {
   if (!payload) return;
-  
+
   // Handle compaction events
   if (payload.stream === "compaction") {
+    const sessionKey =
+      typeof payload.sessionKey === "string" ? payload.sessionKey : undefined;
+    if (sessionKey && sessionKey !== host.sessionKey) return;
+    if (!sessionKey && host.chatRunId && payload.runId !== host.chatRunId) return;
+    if (host.chatRunId && payload.runId !== host.chatRunId) return;
+    if (!host.chatRunId) return;
     handleCompactionEvent(host as CompactionHost, payload);
     return;
   }
-  
+
   if (payload.stream !== "tool") return;
   const sessionKey =
     typeof payload.sessionKey === "string" ? payload.sessionKey : undefined;

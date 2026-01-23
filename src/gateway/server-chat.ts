@@ -173,7 +173,7 @@ export function createAgentEventHandler({
     nodeSendToSession(sessionKey, "chat", payload);
   };
 
-  const shouldEmitToolEvents = (runId: string, sessionKey?: string) => {
+  const shouldEmitVerboseEvents = (runId: string, sessionKey?: string) => {
     const runContext = getAgentRunContext(runId);
     const runVerbose = normalizeVerboseLevel(runContext?.verboseLevel);
     if (runVerbose) return runVerbose === "on";
@@ -198,7 +198,10 @@ export function createAgentEventHandler({
     // Include sessionKey so Control UI can filter tool streams per session.
     const agentPayload = sessionKey ? { ...evt, sessionKey } : evt;
     const last = agentRunSeq.get(evt.runId) ?? 0;
-    if (evt.stream === "tool" && !shouldEmitToolEvents(evt.runId, sessionKey)) {
+    if (
+      (evt.stream === "tool" || evt.stream === "compaction") &&
+      !shouldEmitVerboseEvents(evt.runId, sessionKey)
+    ) {
       agentRunSeq.set(evt.runId, evt.seq);
       return;
     }

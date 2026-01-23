@@ -20,6 +20,7 @@ export type CompactionIndicatorStatus = {
   active: boolean;
   startedAt: number | null;
   completedAt: number | null;
+  retryingAt: number | null;
 };
 
 export type ChatProps = {
@@ -80,6 +81,17 @@ function renderCompactionIndicator(status: CompactionIndicatorStatus | null | un
     `;
   }
   
+  if (status.retryingAt) {
+    const elapsed = Date.now() - status.retryingAt;
+    if (elapsed < COMPACTION_TOAST_DURATION_MS) {
+      return html`
+        <div class="callout info compaction-indicator compaction-indicator--active">
+          🧹 Retrying compaction...
+        </div>
+      `;
+    }
+  }
+
   // Show "compaction complete" briefly after completion
   if (status.completedAt) {
     const elapsed = Date.now() - status.completedAt;

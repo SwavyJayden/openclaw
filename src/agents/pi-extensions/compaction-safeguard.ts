@@ -15,6 +15,15 @@ const TURN_PREFIX_INSTRUCTIONS =
 const MAX_TOOL_FAILURES = 8;
 const MAX_TOOL_FAILURE_CHARS = 240;
 
+function isAbortError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const name = "name" in err ? String(err.name) : "";
+  if (name === "AbortError") return true;
+  const message =
+    "message" in err && typeof err.message === "string" ? err.message.toLowerCase() : "";
+  return message.includes("aborted");
+}
+
 type ToolFailure = {
   toolCallId: string;
   toolName: string;
@@ -251,6 +260,9 @@ async function summarizeWithFallback(params: {
   try {
     return await summarizeChunks(params);
   } catch (fullError) {
+    if (params.signal.aborted || isAbortError(fullError)) {
+      throw fullError;
+    }
     console.warn(
       `Full summarization failed, trying partial: ${
         fullError instanceof Error ? fullError.message : String(fullError)
@@ -283,6 +295,9 @@ async function summarizeWithFallback(params: {
       const notes = oversizedNotes.length > 0 ? `\n\n${oversizedNotes.join("\n")}` : "";
       return partialSummary + notes;
     } catch (partialError) {
+      if (params.signal.aborted || isAbortError(partialError)) {
+        throw partialError;
+      }
       console.warn(
         `Partial summarization also failed: ${
           partialError instanceof Error ? partialError.message : String(partialError)
