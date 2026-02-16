@@ -98,7 +98,7 @@ describe("sanitizeSessionHistory", () => {
     );
   });
 
-  it("sanitizes tool call ids for openai-responses while keeping images-only mode", async () => {
+  it("does not sanitize tool call ids for openai-responses", async () => {
     vi.mocked(helpers.isGoogleModelApi).mockReturnValue(false);
 
     await sanitizeSessionHistory({
@@ -112,11 +112,7 @@ describe("sanitizeSessionHistory", () => {
     expect(helpers.sanitizeSessionMessagesImages).toHaveBeenCalledWith(
       mockMessages,
       "session:history",
-      expect.objectContaining({
-        sanitizeMode: "images-only",
-        sanitizeToolCallIds: true,
-        toolCallIdMode: "strict",
-      }),
+      expect.objectContaining({ sanitizeMode: "images-only", sanitizeToolCallIds: false }),
     );
   });
 
@@ -220,7 +216,7 @@ describe("sanitizeSessionHistory", () => {
     expect(result.map((msg) => msg.role)).toEqual(["user"]);
   });
 
-  it("does not downgrade openai reasoning when the model has not changed", async () => {
+  it("downgrades orphaned openai reasoning even when the model has not changed", async () => {
     const sessionEntries = [
       makeModelSnapshotEntry({
         provider: "openai",
@@ -240,10 +236,10 @@ describe("sanitizeSessionHistory", () => {
       sessionId: "test-session",
     });
 
-    expect(result).toEqual(messages);
+    expect(result).toEqual([]);
   });
 
-  it("downgrades openai reasoning only when the model changes", async () => {
+  it("downgrades openai reasoning when the model changes", async () => {
     const sessionEntries = [
       makeModelSnapshotEntry({
         provider: "anthropic",
