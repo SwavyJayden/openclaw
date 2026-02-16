@@ -265,6 +265,12 @@ export async function runEmbeddedAttempt(
 
     const sessionLabel = params.sessionKey ?? params.sessionId;
 
+    // Resolve agentId early for per-agent bootstrap filtering
+    const earlyAgentId = resolveSessionAgentIds({
+      sessionKey: params.sessionKey,
+      config: params.config,
+    }).sessionAgentId;
+
     // Issue #9157: Skip workspace file re-injection on subsequent messages.
     // First message injects AGENTS.md, SOUL.md etc. into context.
     // Subsequent messages skip this to save ~35K tokens per turn.
@@ -287,6 +293,7 @@ export async function runEmbeddedAttempt(
           config: params.config,
           sessionKey: params.sessionKey,
           sessionId: params.sessionId,
+          agentId: earlyAgentId,
           warn: makeBootstrapWarn({ sessionLabel, warn: (message) => log.warn(message) }),
         });
     const workspaceNotes = hookAdjustedBootstrapFiles.some(

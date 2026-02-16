@@ -63,6 +63,8 @@ export type AgentConfig = {
     prune?: SandboxPruneSettings;
   };
   tools?: AgentToolsConfig;
+  /** Optional bootstrap file filter — only inject listed workspace files. Omit = all files. */
+  bootstrap?: { include?: string[] };
 };
 
 export type AgentsConfig = {
