@@ -550,6 +550,12 @@ export const AgentEntrySchema = z
       })
       .strict()
       .optional(),
+    bootstrap: z
+      .object({
+        include: z.array(z.string()).optional(),
+      })
+      .strict()
+      .optional(),
     sandbox: AgentSandboxSchema,
     tools: AgentToolsSchema,
   })
