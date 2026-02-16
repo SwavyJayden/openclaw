@@ -264,14 +264,31 @@ export async function runEmbeddedAttempt(
     });
 
     const sessionLabel = params.sessionKey ?? params.sessionId;
-    const { bootstrapFiles: hookAdjustedBootstrapFiles, contextFiles } =
-      await resolveBootstrapContextForRun({
-        workspaceDir: effectiveWorkspace,
-        config: params.config,
-        sessionKey: params.sessionKey,
-        sessionId: params.sessionId,
-        warn: makeBootstrapWarn({ sessionLabel, warn: (message) => log.warn(message) }),
-      });
+
+    // Issue #9157: Skip workspace file re-injection on subsequent messages.
+    // First message injects AGENTS.md, SOUL.md etc. into context.
+    // Subsequent messages skip this to save ~35K tokens per turn.
+    const sessionFileExists = await fs
+      .stat(params.sessionFile)
+      .then(() => true)
+      .catch(() => false);
+
+    const { bootstrapFiles: hookAdjustedBootstrapFiles, contextFiles } = sessionFileExists
+      ? {
+          bootstrapFiles: [] as Awaited<
+            ReturnType<typeof resolveBootstrapContextForRun>
+          >["bootstrapFiles"],
+          contextFiles: [] as Awaited<
+            ReturnType<typeof resolveBootstrapContextForRun>
+          >["contextFiles"],
+        }
+      : await resolveBootstrapContextForRun({
+          workspaceDir: effectiveWorkspace,
+          config: params.config,
+          sessionKey: params.sessionKey,
+          sessionId: params.sessionId,
+          warn: makeBootstrapWarn({ sessionLabel, warn: (message) => log.warn(message) }),
+        });
     const workspaceNotes = hookAdjustedBootstrapFiles.some(
       (file) => file.name === DEFAULT_BOOTSTRAP_FILENAME && !file.missing,
     )
