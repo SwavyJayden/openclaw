@@ -58,7 +58,7 @@ import {
 } from "../skills.js";
 import { resolveTranscriptPolicy } from "../transcript-policy.js";
 import { compactWithSafetyTimeout } from "./compaction-safety-timeout.js";
-import { buildEmbeddedExtensionPaths } from "./extensions.js";
+import { buildEmbeddedExtensionFactories } from "./extensions.js";
 import {
   logToolSchemasForGoogle,
   sanitizeSessionHistory,
@@ -527,7 +527,7 @@ export async function compactEmbeddedPiSessionDirect(
         minReserveTokens: resolveCompactionReserveTokensFloor(params.config),
       });
       // Call for side effects (sets compaction/pruning runtime state)
-      buildEmbeddedExtensionPaths({
+      buildEmbeddedExtensionFactories({
         cfg: params.config,
         sessionManager,
         provider,
