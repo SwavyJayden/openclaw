@@ -16,6 +16,7 @@ const bundledExtensionSubpathLoaders = [
   { id: "device-pair", load: () => import("openclaw/plugin-sdk/device-pair") },
   { id: "diagnostics-otel", load: () => import("openclaw/plugin-sdk/diagnostics-otel") },
   { id: "diffs", load: () => import("openclaw/plugin-sdk/diffs") },
+  { id: "explore", load: () => import("openclaw/plugin-sdk/explore") },
   { id: "feishu", load: () => import("openclaw/plugin-sdk/feishu") },
   {
     id: "google-gemini-cli-auth",
@@ -29,6 +30,7 @@ const bundledExtensionSubpathLoaders = [
   { id: "mattermost", load: () => import("openclaw/plugin-sdk/mattermost") },
   { id: "memory-core", load: () => import("openclaw/plugin-sdk/memory-core") },
   { id: "memory-lancedb", load: () => import("openclaw/plugin-sdk/memory-lancedb") },
+  { id: "memory-loop", load: () => import("openclaw/plugin-sdk/memory-loop") },
   {
     id: "minimax-portal-auth",
     load: () => import("openclaw/plugin-sdk/minimax-portal-auth"),

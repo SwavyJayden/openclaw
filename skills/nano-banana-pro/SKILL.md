@@ -1,6 +1,6 @@
 ---
 name: nano-banana-pro
-description: Generate or edit images via Gemini 3 Pro Image (Nano Banana Pro).
+description: Generate or edit images via Nano Banana 2 (Gemini 3.1 Flash Image).
 homepage: https://ai.google.dev/
 metadata:
   {
@@ -23,7 +23,7 @@ metadata:
   }
 ---
 
-# Nano Banana Pro (Gemini 3 Pro Image)
+# Nano Banana 2 (Gemini 3.1 Flash Image)
 
 Use the bundled script to generate or edit images.
 

@@ -104,6 +104,10 @@
       "types": "./dist/plugin-sdk/diffs.d.ts",
       "default": "./dist/plugin-sdk/diffs.js"
     },
+    "./plugin-sdk/explore": {
+      "types": "./dist/plugin-sdk/explore.d.ts",
+      "default": "./dist/plugin-sdk/explore.js"
+    },
     "./plugin-sdk/feishu": {
       "types": "./dist/plugin-sdk/feishu.d.ts",
       "default": "./dist/plugin-sdk/feishu.js"
@@ -143,6 +147,10 @@
     "./plugin-sdk/memory-lancedb": {
       "types": "./dist/plugin-sdk/memory-lancedb.d.ts",
       "default": "./dist/plugin-sdk/memory-lancedb.js"
+    },
+    "./plugin-sdk/memory-loop": {
+      "types": "./dist/plugin-sdk/memory-loop.d.ts",
+      "default": "./dist/plugin-sdk/memory-loop.js"
     },
     "./plugin-sdk/minimax-portal-auth": {
       "types": "./dist/plugin-sdk/minimax-portal-auth.d.ts",

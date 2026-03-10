@@ -1,0 +1,20 @@
+{
+  "name": "@openclaw/explore",
+  "version": "2026.3.7",
+  "private": true,
+  "description": "Haiku-powered codebase exploration tool",
+  "type": "module",
+  "peerDependencies": {
+    "openclaw": ">=2026.3.2"
+  },
+  "peerDependenciesMeta": {
+    "openclaw": {
+      "optional": true
+    }
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

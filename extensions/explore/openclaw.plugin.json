@@ -1,0 +1,8 @@
+{
+  "id": "explore",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}
