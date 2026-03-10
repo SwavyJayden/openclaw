@@ -459,13 +459,51 @@ export function loadAuthProfileStoreForSecretsRuntime(agentDir?: string): AuthPr
   return loadAuthProfileStoreForRuntime(agentDir, { readOnly: true, allowKeychainPrompt: false });
 }
 
+/** Check whether any expirable credential in the store has expired. */
+function hasExpiredExpirableCredentials(store: AuthProfileStore): boolean {
+  const now = Date.now();
+  for (const cred of Object.values(store.profiles)) {
+    const expires = (cred as Record<string, unknown>).expires;
+    if (typeof expires === "number" && Number.isFinite(expires) && now >= expires) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function ensureAuthProfileStore(
   agentDir?: string,
   options?: { allowKeychainPrompt?: boolean },
 ): AuthProfileStore {
-  const runtimeStore = resolveRuntimeAuthProfileStore(agentDir);
-  if (runtimeStore) {
-    return runtimeStore;
+  let result = resolveRuntimeAuthProfileStore(agentDir);
+  if (result) {
+    // If the in-memory snapshot has expired tokens, check disk for fresher ones
+    // written by external daemons (claude-token-sync, gemini-token-sync).
+    if (hasExpiredExpirableCredentials(result)) {
+      const diskStore = loadCoercedStore(resolveRuntimeStoreKey(agentDir));
+      if (diskStore) {
+        for (const [profileId, diskCred] of Object.entries(diskStore.profiles)) {
+          const memCred = result.profiles[profileId];
+          if (!memCred) {
+            result.profiles[profileId] = diskCred;
+            continue;
+          }
+          const diskExpires = (diskCred as Record<string, unknown>).expires;
+          const memExpires = (memCred as Record<string, unknown>).expires;
+          if (
+            typeof diskExpires === "number" &&
+            typeof memExpires === "number" &&
+            diskExpires > memExpires
+          ) {
+            result.profiles[profileId] = diskCred;
+          }
+        }
+        // Update the runtime snapshot so subsequent calls use fresh tokens.
+        const snapshotKey = resolveRuntimeStoreKey(agentDir);
+        runtimeAuthStoreSnapshots.set(snapshotKey, cloneAuthProfileStore(result));
+      }
+    }
+    return result;
   }
 
   const store = loadAuthProfileStoreForAgent(agentDir, options);
