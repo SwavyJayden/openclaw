@@ -35,7 +35,6 @@ const entrypoints = [
   "mattermost",
   "memory-core",
   "memory-lancedb",
-  "memory-loop",
   "minimax-portal-auth",
   "nextcloud-talk",
   "nostr",

@@ -148,10 +148,6 @@
       "types": "./dist/plugin-sdk/memory-lancedb.d.ts",
       "default": "./dist/plugin-sdk/memory-lancedb.js"
     },
-    "./plugin-sdk/memory-loop": {
-      "types": "./dist/plugin-sdk/memory-loop.d.ts",
-      "default": "./dist/plugin-sdk/memory-loop.js"
-    },
     "./plugin-sdk/minimax-portal-auth": {
       "types": "./dist/plugin-sdk/minimax-portal-auth.d.ts",
       "default": "./dist/plugin-sdk/minimax-portal-auth.js"
